@@ -1,5 +1,10 @@
+import 'package:cunty/models/chat_model.dart';
+import 'package:cunty/models/message_model.dart';
+import 'package:cunty/models/period_model.dart';
 import 'package:cunty/src/imports.dart';
 import 'package:cunty/screens/landing.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 
 void setupLogging() {
   Logger.root.level =
@@ -7,7 +12,25 @@ void setupLogging() {
   Logger.root.onRecord.listen((record) {});
 }
 
-void main() {
+void registerModels() {
+  Hive.registerAdapter(MessageModelAdapter());
+  Hive.registerAdapter(PeriodModelAdapter());
+  Hive.registerAdapter(ChatModelAdapter());
+}
+
+Future<void> openBoxes() async {
+  final futures = <Future>[
+    Hive.openBox<MessageModel>('tasks'),
+    Hive.openBox<PeriodModel>('periods'),
+    Hive.openBox<ChatModel>('chats'),
+  ];
+  await Future.wait(futures);
+}
+
+void main() async {
+  await Hive.initFlutter();
+  registerModels();
+  await openBoxes();
   setupLogging();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => MyAppState()),
@@ -31,7 +54,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Cunty',
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

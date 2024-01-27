@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ThemeProvider extends ChangeNotifier {
   ThemeMode themeMode = ThemeMode.light;
+  static double minWidth = 400;
 
   ThemeProvider() {
     SharedPreferences.getInstance().then((prefs) {
@@ -25,6 +26,7 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   TextStyle headlineTextStyle(BuildContext context) {
+
     double scalingFactor = MediaQuery.of(context).size.width / 400;
     return GoogleFonts.roboto(
       fontSize: 28 * scalingFactor,
@@ -38,11 +40,11 @@ class ThemeProvider extends ChangeNotifier {
       fontSize: 11 * scalingFactor,
     );
   }
-
+  
   TextStyle smallestTextStyle(BuildContext context) {
     double scalingFactor = MediaQuery.of(context).size.width / 400;
     return GoogleFonts.roboto(
-      fontSize: 8 * scalingFactor,
+      fontSize: 7 * scalingFactor,
     );
   }
 

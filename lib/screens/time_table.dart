@@ -1,7 +1,7 @@
 import 'package:cunty/src/imports.dart';
 
 class TimeTable extends StatefulWidget {
-  const TimeTable({Key? key}) : super(key: key);
+  const TimeTable({super.key});
 
   static const String route = '/timetable';
 
@@ -30,7 +30,7 @@ class _TimeTableState extends State<TimeTable> {
   LayoutBuilder build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     ColorScheme colorScheme = theme.colorScheme;
-    ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
+    // ThemeProvider themeProvider = Provider.of<ThemeProvider>(context);
 
     return LayoutBuilder(builder: (context, constraints) {
       return FutureBuilder(
@@ -68,9 +68,13 @@ class _TimeTableState extends State<TimeTable> {
       return Padding(
         padding: const EdgeInsets.all(4.0),
         child: Container(
+          constraints: const BoxConstraints(
+            minHeight: 75,
+            minWidth: 200,
+          ),
           decoration: BoxDecoration(
             // border: Border.all(color: colorScheme.onSurface),
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.circular(5),
             color: color,
           ),
           padding: const EdgeInsets.all(8.0),
@@ -127,20 +131,23 @@ class _TimeTableState extends State<TimeTable> {
     for (var i = 0; i < _periods.length; i++) {
       List<TableCell> cells = [
         TableCell(
+          verticalAlignment: TableCellVerticalAlignment.middle,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              tableCell(
-                text: '${_periods[i]}',
-                height: (height - (height / 20)) / 20 - 8,
+              Text(
+                '${h++}',
+                style: themeProvider.smallestTextStyle(context),
               ),
-              tableCell(
-                text: '${_periods[i] + 1}',
-                height: (height - (height / 20)) / 20 - 8,
+              Text(
+                '${h}',
+                style: themeProvider.smallestTextStyle(context),
               ),
             ],
           ),
         )
       ];
+      h++;
       for (var j = 0; j < days.length; j++) {
         cells.add(TableCell(
             child: tableCell(

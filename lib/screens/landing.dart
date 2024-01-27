@@ -1,5 +1,7 @@
+import 'package:cunty/screens/messenger.dart';
 import 'package:cunty/src/imports.dart';
 import 'package:cunty/screens/time_table.dart';
+import 'package:cunty/screens/mails.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -27,10 +29,10 @@ class _MainPageState extends State<MainPage> {
         page = const Placeholder(text: 'Home');
         break;
       case 1:
-        page = const Placeholder(text: 'Messenger');
+        page = const MessengerPage();
         break;
       case 2:
-        page = const Placeholder(text: 'Mail');
+        page = const Mails();
         break;
       case 3:
         page = const TimeTable();
@@ -136,7 +138,7 @@ class _MainPageState extends State<MainPage> {
                 ],
                 selectedIndex: selectedPage + 1,
                 onDestinationSelected: (int index) {
-                  print(index - 1);
+
                   setState(() {
                     if (index == 0) {
                       extended = !extended;
