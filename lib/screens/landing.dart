@@ -3,6 +3,7 @@ import 'package:cunty/src/imports.dart';
 import 'package:cunty/screens/time_table.dart';
 import 'package:cunty/screens/mails.dart';
 
+
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
@@ -13,6 +14,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  
   @override
   void initState() {
     super.initState();
