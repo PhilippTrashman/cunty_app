@@ -1,34 +1,42 @@
-import 'package:hive/hive.dart';
 class MessageModel {
+  String id;
+  String senderId;
+  String receiverId;
   String type;
   String message;
   String time;
 
   MessageModel({
+    required this.id,
+    required this.senderId,
+    required this.receiverId,
     required this.type,
     required this.message,
     required this.time,
   });
-}
 
-class MessageModelAdapter extends TypeAdapter<MessageModel> {
-  @override
-  final typeId = 0;
-
-  @override
-  MessageModel read(BinaryReader reader) {
+  factory MessageModel.fromJson(Map<String, dynamic> json) {
     return MessageModel(
-      type: reader.readString(),
-      message: reader.readString(),
-      time: reader.readString(),
+      id: json['id'],
+      senderId: json['sender_id'],
+      receiverId: json['receiver_id'],
+      type: json['type'],
+      message: json['message'],
+      time: json['time'],
     );
   }
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'sender_id': senderId,
+        'receiver_id': receiverId,
+        'type': type,
+        'message': message,
+        'time': time,
+      };
+
   @override
-  void write(BinaryWriter writer, MessageModel obj) {
-    writer
-      ..writeString(obj.type)
-      ..writeString(obj.message)
-      ..writeString(obj.time);
+  String toString() {
+    return 'MessageModel(sender_id: $senderId, receiver_id: $receiverId, type: $type, message: $message, time: $time)';
   }
 }

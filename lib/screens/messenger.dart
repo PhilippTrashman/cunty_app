@@ -1,65 +1,73 @@
-import 'package:cunty/models/message_model.dart';
-import 'package:flutter/material.dart';
 import 'package:cunty/src/imports.dart';
-import 'package:hive/hive.dart';
-
+import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
 
 class MessengerPage extends StatefulWidget {
   const MessengerPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MessengerPageState createState() => _MessengerPageState();
 }
 
 class _MessengerPageState extends State<MessengerPage> {
   List<MessageModel> values = [];
-  late Box<MessageModel> taskBox;
+
+  final TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    
-    openBox();
-  }
-
-  Future openBox() async {
-    taskBox = await Hive.openBox<MessageModel>('tasks');
-    updateList();
-  }
-
-  void updateList() {
-    setState(() {
-      values = taskBox.values.toList();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
       child: Center(
         child: Column(
           children: [
-            TextButton(
-              onPressed: () {
-                taskBox.add(MessageModel(type: 'test', message: 'hello', time: DateTime.now().toString()));
-                updateList();
-              },
-              child: Text('Add'),
+            TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Message',
+              ),
+              controller: _controller,
             ),
-            TextButton(
-              onPressed: () {
-                taskBox.clear();
-                updateList();
-                setState(() {
-                  
-                });
-              },
-              child: Text('Clear'),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        final String message = _controller.text;
+                        values.add(MessageModel(
+                            id: const Uuid().v8(),
+                            senderId: '1',
+                            receiverId: '2',
+                            type: 'test',
+                            message: message,
+                            time: DateTime.now().toString()));
+                        _controller.clear();
+                      });
+                    },
+                    child: const Text('Add'),
+                  ),
+                  Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      values.clear();
+                      setState(() {});
+                    },
+                    child: const Text('Clear'),
+                  ),
+                  Spacer(),
+                ],
+              ),
             ),
-            TextButton(
-              onPressed: updateList,
-              child: Text('Update List'),
-            ),
+            Divider(),
             Expanded(
               child: ListView.builder(
                 itemBuilder: (context, index) {
