@@ -35,4 +35,13 @@ class HttpService {
       throw Exception('Failed to login');
     }
   }
+
+  Future<Response> fetchUsers() async {
+    final response = await _dio.get('$_baseUrl/users');
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
 }
