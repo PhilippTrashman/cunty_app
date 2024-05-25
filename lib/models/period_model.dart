@@ -1,5 +1,3 @@
-import 'package:hive/hive.dart';
-
 class PeriodModel {
   final String id;
   final String name;
@@ -47,37 +45,5 @@ class PeriodModel {
   @override
   String toString() {
     return 'PeriodModel(id: $id, name: $name, description: $description, teacher_id: $teacherId, start_date: $startDate, end_date: $endDate, created_at: $createdAt, updated_at: $updatedAt)';
-  }
-}
-
-class PeriodModelAdapter extends TypeAdapter<PeriodModel> {
-  @override
-  final typeId = 2;
-
-  @override
-  PeriodModel read(BinaryReader reader) {
-    return PeriodModel(
-      id: reader.readString(),
-      name: reader.readString(),
-      description: reader.readString(),
-      teacherId: reader.readString(),
-      startDate: reader.readString(),
-      endDate: reader.readString(),
-      createdAt: reader.readString(),
-      updatedAt: reader.readString(),
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, PeriodModel obj) {
-    writer
-      ..writeString(obj.id)
-      ..writeString(obj.name)
-      ..writeString(obj.description)
-      ..writeString(obj.teacherId)
-      ..writeString(obj.startDate)
-      ..writeString(obj.endDate)
-      ..writeString(obj.createdAt)
-      ..writeString(obj.updatedAt);
   }
 }

@@ -1,5 +1,3 @@
-import 'package:hive/hive.dart';
-
 class SchoolClass {
   int? id;
   String name;
