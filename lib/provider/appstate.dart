@@ -11,6 +11,14 @@ class AppState extends ChangeNotifier {
   static String? _userId;
 
   final HttpService _httpService = HttpService();
+
+  AppState() {
+    SharedPreferences.getInstance().then((prefs) {
+      devMode = prefs.getBool('devmode') ?? false;
+      notifyListeners();
+    });
+  }
+
   bool loggedIn() {
     return _userId == null;
   }
@@ -23,7 +31,8 @@ class AppState extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     try {
       await _httpService.login(email, password).then((response) {
-        userId = response.data['user']['id'];
+        Map<String, dynamic> data = json.decode(response.data);
+        userId = data['id'];
         notifyListeners();
       });
     } catch (e) {
@@ -34,13 +43,6 @@ class AppState extends ChangeNotifier {
   Future<void> logout() async {
     userId = null;
     notifyListeners();
-  }
-
-  AppState() {
-    SharedPreferences.getInstance().then((prefs) {
-      devMode = prefs.getBool('devmode') ?? false;
-      notifyListeners();
-    });
   }
 
   void toggleDevMode() {

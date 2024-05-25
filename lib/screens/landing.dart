@@ -1,4 +1,5 @@
 import 'package:cunty/screens/messenger.dart';
+import 'package:cunty/screens/user_management.dart';
 import 'package:cunty/src/imports.dart';
 import 'package:cunty/screens/time_table.dart';
 import 'package:cunty/screens/mails.dart';
@@ -48,6 +49,9 @@ class _MainPageState extends State<MainPage> {
         page = const Placeholder(text: 'Calendar');
         break;
       case 5:
+        page = const UserManagement();
+        break;
+      case 6:
         page = const Placeholder(text: 'Settings');
         break;
       default:
@@ -91,6 +95,13 @@ class _MainPageState extends State<MainPage> {
             icon: const Icon(Icons.event),
             label: Text(
               AppLocalizations.of(context)!.calendar,
+              style: TextStyle(overflow: TextOverflow.ellipsis),
+            ),
+          ),
+          NavigationRailDestination(
+            icon: const Icon(Icons.people),
+            label: Text(
+              'Users',
               style: TextStyle(overflow: TextOverflow.ellipsis),
             ),
           ),

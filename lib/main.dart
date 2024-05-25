@@ -1,5 +1,6 @@
 import 'package:cunty/src/imports.dart';
 import 'package:cunty/screens/landing.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void setupLogging() {
   Logger.root.level =
@@ -7,8 +8,8 @@ void setupLogging() {
   Logger.root.onRecord.listen((record) {});
 }
 
-
-void main() async {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   setupLogging();
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (context) => AppState()),

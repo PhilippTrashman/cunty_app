@@ -1,4 +1,3 @@
-import 'package:cunty/models/message_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cunty/src/imports.dart';
 
@@ -10,8 +9,6 @@ class MessengerPage extends StatefulWidget {
 }
 
 class _MessengerPageState extends State<MessengerPage> {
-  List<MessageModel> values = [];
-
   @override
   void initState() {
     super.initState();

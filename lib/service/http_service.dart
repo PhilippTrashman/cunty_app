@@ -1,8 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HttpService {
-  static const _baseUrl = 'http://127.0.0.1:8000';
-  static const _bearerToken = '';
+  final String _baseUrl = dotenv.env['URL']!;
+  final String _bearerToken = dotenv.env['TOKEN']!;
 
   static final Dio _dio = Dio();
 
@@ -24,7 +25,7 @@ class HttpService {
   }
 
   Future<Response> login(String email, String password) async {
-    var response = await Dio().post('$_baseUrl/login',
+    var response = await _dio.post('$_baseUrl/login',
         data: {'username': email, 'password': password});
     if (response.statusCode == 200) {
       return response;
