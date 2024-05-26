@@ -44,4 +44,13 @@ class HttpService {
       throw Exception('Failed to load data');
     }
   }
+
+  Future<Response> deleteUser(String username) async {
+    final response = await _dio.delete('$_baseUrl/users/$username');
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw Exception('Failed to delete user');
+    }
+  }
 }

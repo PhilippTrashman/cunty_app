@@ -140,7 +140,7 @@ class _TimeTableState extends State<TimeTable> {
                 style: themeProvider.smallestTextStyle(context),
               ),
               Text(
-                '${h}',
+                '$h',
                 style: themeProvider.smallestTextStyle(context),
               ),
             ],

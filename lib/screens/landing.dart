@@ -74,7 +74,7 @@ class _MainPageState extends State<MainPage> {
             icon: const Icon(Icons.chat),
             label: Text(
               AppLocalizations.of(context)!.messenger,
-              style: TextStyle(overflow: TextOverflow.ellipsis),
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
             ),
           ),
           const NavigationRailDestination(
@@ -88,18 +88,18 @@ class _MainPageState extends State<MainPage> {
             icon: const Icon(Icons.calendar_view_week),
             label: Text(
               AppLocalizations.of(context)!.timeTable,
-              style: TextStyle(overflow: TextOverflow.ellipsis),
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
             ),
           ),
           NavigationRailDestination(
             icon: const Icon(Icons.event),
             label: Text(
               AppLocalizations.of(context)!.calendar,
-              style: TextStyle(overflow: TextOverflow.ellipsis),
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
             ),
           ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.people),
+          const NavigationRailDestination(
+            icon: Icon(Icons.people),
             label: Text(
               'Users',
               style: TextStyle(overflow: TextOverflow.ellipsis),
@@ -109,7 +109,7 @@ class _MainPageState extends State<MainPage> {
             icon: const Icon(Icons.settings),
             label: Text(
               AppLocalizations.of(context)!.settings,
-              style: TextStyle(overflow: TextOverflow.ellipsis),
+              style: const TextStyle(overflow: TextOverflow.ellipsis),
             ),
           ),
           const NavigationRailDestination(
@@ -226,7 +226,7 @@ class _MainPageState extends State<MainPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           AppLocalizations.of(context)!.login,
                           style: const TextStyle(
@@ -326,7 +326,7 @@ class _MainPageState extends State<MainPage> {
 
 class Placeholder extends StatelessWidget {
   final String text;
-  const Placeholder({Key? key, required this.text}) : super(key: key);
+  const Placeholder({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {

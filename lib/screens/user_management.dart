@@ -13,13 +13,33 @@ class UserManagement extends StatefulWidget {
 class _UserManagementState extends State<UserManagement> {
   final int _selectedIndex = 0;
   final int length = 4;
+  final HttpService hs = HttpService();
 
-  Widget _buildTabView(int index) {
+  void update() {
+    setState(() {});
+  }
+
+  Future<Map<String, List<Map<String, dynamic>>>> fetchData() async {
+    final responseUsers = await hs.fetchUsers();
+    Map<String, List<Map<String, dynamic>>> data = {};
+    if (responseUsers.statusCode == 200) {
+      data['users'] = (json.decode(responseUsers.data) as List)
+          .map((item) => item as Map<String, dynamic>)
+          .toList();
+      return data;
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Widget _buildTabView(
+      int index, Map<String, List<Map<String, dynamic>>> data) {
     switch (index) {
       case 0:
-        return const Center(child: UserTable());
+        return Center(
+            child: UserTable(data: data['users']!, update: update, hs: hs));
       case 1:
-        return const Center(child: Text('Add User'));
+        return const Center(child: Text('Classes'));
       case 2:
         return const Center(child: Text('Remove User'));
       case 3:
@@ -29,8 +49,28 @@ class _UserManagementState extends State<UserManagement> {
     }
   }
 
+  Widget body() {
+    return FutureBuilder(
+      future: fetchData(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          return tabbuilder(snapshot.data);
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    return body();
+  }
+
+  DefaultTabController tabbuilder(
+      Map<String, List<Map<String, dynamic>>> data) {
     return DefaultTabController(
       initialIndex: _selectedIndex,
       length: length,
@@ -39,15 +79,15 @@ class _UserManagementState extends State<UserManagement> {
           const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.person)),
+              Tab(icon: Icon(Icons.school)),
               Tab(icon: Icon(Icons.person_add)),
-              Tab(icon: Icon(Icons.person_remove)),
               Tab(icon: Icon(Icons.person_search)),
             ],
           ),
           Expanded(
             child: TabBarView(
-                children:
-                    List.generate(length, (index) => _buildTabView(index))),
+                children: List.generate(
+                    length, (index) => _buildTabView(index, data))),
           ),
         ],
       ),
@@ -56,7 +96,11 @@ class _UserManagementState extends State<UserManagement> {
 }
 
 class UserTable extends StatefulWidget {
-  const UserTable({super.key});
+  const UserTable(
+      {super.key, required this.data, required this.update, required this.hs});
+  final List<Map<String, dynamic>> data;
+  final Function update;
+  final HttpService hs;
 
   @override
   State<UserTable> createState() => _UserTableState();
@@ -64,37 +108,20 @@ class UserTable extends StatefulWidget {
 
 class _UserTableState extends State<UserTable> {
   int _rowsPerPage = 20;
-  HttpService hs = HttpService();
-
-  Future<List<Map<String, dynamic>>> fetchData() async {
-    final response = await hs.fetchUsers();
-    if (response.statusCode == 200) {
-      final data = (json.decode(response.data) as List)
-          .map((item) => item as Map<String, dynamic>)
-          .toList();
-      return data;
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
 
   Future<void> _refreshData() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: fetchData(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            return shownData(context, snapshot.data);
-          }
-        });
+    return shownData(context, widget.data);
+  }
+
+  void deleteUser(String username) {
+    setState(() {
+      widget.hs.deleteUser(username);
+    });
   }
 
   RefreshIndicator shownData(
@@ -104,9 +131,21 @@ class _UserTableState extends State<UserTable> {
       child: SizedBox.expand(
         child: SingleChildScrollView(
           child: PaginatedDataTable(
-            header: Text('User Table'),
+            header: Row(
+              children: [
+                const Text('User Table'),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    setState(() {});
+                    widget.update();
+                  },
+                ),
+              ],
+            ),
             rowsPerPage: _rowsPerPage,
-            availableRowsPerPage: <int>[5, 10, 20, 25, 50, 100],
+            availableRowsPerPage: const <int>[5, 10, 20, 25, 50, 100],
             onRowsPerPageChanged: (int? value) {
               setState(() {
                 _rowsPerPage = value!;
@@ -120,7 +159,7 @@ class _UserTableState extends State<UserTable> {
               DataColumn(label: Text('Birthday')),
               DataColumn(label: Text('Actions')),
             ],
-            source: _DataSource(context, data),
+            source: _DataSource(context, data, deleteUser, widget.update),
           ),
         ),
       ),
@@ -128,20 +167,14 @@ class _UserTableState extends State<UserTable> {
   }
 }
 
-class _Row {
-  _Row(this.value);
-
-  final int value;
-
-  DataCell getCell(int index) => DataCell(Text('Data $index'));
-}
-
 class _DataSource extends DataTableSource {
-  _DataSource(this.context, this.data);
+  _DataSource(this.context, this.data, this.deleteUser, this.update);
 
   final BuildContext context;
   final List<Map<String, dynamic>> data;
-  int _selectedCount = 0;
+  final Function deleteUser;
+  final Function update;
+  final int _selectedCount = 0;
 
   @override
   DataRow getRow(int index) {
@@ -163,7 +196,10 @@ class _DataSource extends DataTableSource {
             ),
             IconButton(
               icon: const Icon(Icons.delete),
-              onPressed: () {},
+              onPressed: () {
+                deleteUser(value["username"]);
+                update();
+              },
             ),
           ],
         )),
