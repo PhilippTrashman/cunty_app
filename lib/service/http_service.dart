@@ -58,6 +58,15 @@ class HttpService {
     return fetchObject('users');
   }
 
+  Future<Map<String, dynamic>> fetchUser(String username) async {
+    final response = await _dio.get('$_baseUrl/users/$username');
+    if (response.statusCode == 200) {
+      return json.decode(response.data);
+    } else {
+      throw Exception('Failed to load user');
+    }
+  }
+
   static const testAccountList = [
     'testStudent1',
     'testStudent2',
