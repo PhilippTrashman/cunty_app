@@ -5,7 +5,7 @@ class MessengerPage extends StatefulWidget {
   const MessengerPage({super.key});
 
   @override
-  _MessengerPageState createState() => _MessengerPageState();
+  State<MessengerPage> createState() => _MessengerPageState();
 }
 
 class _MessengerPageState extends State<MessengerPage> {
@@ -27,18 +27,18 @@ class _MessengerPageState extends State<MessengerPage> {
             onPressed: () {
               updateList();
             },
-            child: Text('Add'),
+            child: const Text('Add'),
           ),
           TextButton(
             onPressed: () {
               updateList();
               setState(() {});
             },
-            child: Text('Clear'),
+            child: const Text('Clear'),
           ),
           TextButton(
             onPressed: updateList,
-            child: Text('Update List'),
+            child: const Text('Update List'),
           ),
         ],
       ),
