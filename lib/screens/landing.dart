@@ -1,8 +1,8 @@
-import 'package:cunty/screens/messenger.dart';
+import 'dart:io';
+
 import 'package:cunty/screens/user_management.dart';
+import 'package:cunty/screens/class_management.dart';
 import 'package:cunty/src/imports.dart';
-import 'package:cunty/screens/time_table.dart';
-import 'package:cunty/screens/mails.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -34,24 +34,14 @@ class _MainPageState extends State<MainPage> {
     Widget page;
     switch (selectedPage) {
       case 0:
-        page = const Placeholder(text: 'Home');
+        page = const Placeholder(text: 'Welcome');
         break;
       case 1:
-        page = const MessengerPage();
-        break;
-      case 2:
-        page = const Mails();
-        break;
-      case 3:
-        page = const TimeTable();
-        break;
-      case 4:
-        page = const Placeholder(text: 'Calendar');
-        break;
-      case 5:
         page = const UserManagement();
         break;
-      case 6:
+      case 2:
+        page = const ClassManagement();
+      case 3:
         page = const Placeholder(text: 'Settings');
         break;
       default:
@@ -62,8 +52,8 @@ class _MainPageState extends State<MainPage> {
       return SafeArea(
           child: NavigationRail(
         extended: useInsteadOfExtended ?? extended,
-        destinations: [
-          const NavigationRailDestination(
+        destinations: const [
+          NavigationRailDestination(
             icon: Icon(Icons.home),
             label: Text(
               'Home',
@@ -71,34 +61,6 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
           NavigationRailDestination(
-            icon: const Icon(Icons.chat),
-            label: Text(
-              AppLocalizations.of(context)!.messenger,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
-            ),
-          ),
-          const NavigationRailDestination(
-            icon: Icon(Icons.mail),
-            label: Text(
-              'Mail',
-              style: TextStyle(overflow: TextOverflow.ellipsis),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.calendar_view_week),
-            label: Text(
-              AppLocalizations.of(context)!.timeTable,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
-            ),
-          ),
-          NavigationRailDestination(
-            icon: const Icon(Icons.event),
-            label: Text(
-              AppLocalizations.of(context)!.calendar,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
-            ),
-          ),
-          const NavigationRailDestination(
             icon: Icon(Icons.people),
             label: Text(
               'Users',
@@ -106,13 +68,20 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
           NavigationRailDestination(
-            icon: const Icon(Icons.settings),
+            icon: Icon(Icons.tv),
             label: Text(
-              AppLocalizations.of(context)!.settings,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
+              'Classes',
+              style: TextStyle(overflow: TextOverflow.ellipsis),
             ),
           ),
-          const NavigationRailDestination(
+          NavigationRailDestination(
+            icon: Icon(Icons.settings),
+            label: Text(
+              'Settings',
+              style: TextStyle(overflow: TextOverflow.ellipsis),
+            ),
+          ),
+          NavigationRailDestination(
             icon: Icon(Icons.info),
             label: Text(
               'Info',
@@ -155,7 +124,8 @@ class _MainPageState extends State<MainPage> {
     Widget loggedIn() {
       return LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 450) {
+          if (constraints.maxWidth < 450 && Platform.isAndroid ||
+              Platform.isIOS) {
             return Stack(
               children: [
                 page,
@@ -225,11 +195,11 @@ class _MainPageState extends State<MainPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      const Padding(
+                        padding: EdgeInsets.all(8.0),
                         child: Text(
-                          AppLocalizations.of(context)!.login,
-                          style: const TextStyle(
+                          'Login',
+                          style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.white),
@@ -280,7 +250,7 @@ class _MainPageState extends State<MainPage> {
                             setState(() {});
                           });
                         },
-                        child: Text(AppLocalizations.of(context)!.login),
+                        child: const Text('Login'),
                       ),
                     ],
                   ),

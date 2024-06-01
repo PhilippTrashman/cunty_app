@@ -1,8 +1,6 @@
 import 'package:cunty/service/http_service.dart';
 import 'package:cunty/src/imports.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 enum UserTableType { users, students, teachers, parents, admins }
 
@@ -38,8 +36,6 @@ class _UserTableState extends State<UserTable> {
   final lastNameController = TextEditingController();
   final usernameController = TextEditingController();
   final birthdayController = TextEditingController();
-
-  // ...
 
   @override
   void initState() {
@@ -256,27 +252,40 @@ class _DataSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: <DataCell>[
-        DataCell(_tapHandler(
-            data: value,
-            text: root ? '${value["id"]}' : '${value["account"]["id"]}')),
-        DataCell(_tapHandler(
-            data: value,
-            text: root ? '${value["name"]}' : '${value["account"]["name"]}')),
-        DataCell(_tapHandler(
-            data: value,
-            text: root
-                ? '${value["last_name"]}'
-                : '${value["account"]["last_name"]}')),
-        DataCell(_tapHandler(
-            data: value,
-            text: root
-                ? '${value["username"]}'
-                : '${value["account"]["username"]}')),
-        DataCell(_tapHandler(
-            data: value,
-            text: root
-                ? '${value["birthday"]}'
-                : '${value["account"]["birthday"]}')),
+        DataCell(
+          onTap: () {
+            _detailView(value);
+          },
+          Text(
+            root ? '${value["id"]}' : '${value["account"]["id"]}',
+          ),
+        ),
+        DataCell(onTap: () {
+          _detailView(value);
+        },
+            Text(
+              root ? '${value["name"]}' : '${value["account"]["name"]}',
+            )),
+        DataCell(onTap: () {
+          _detailView(value);
+        },
+            Text(
+              root
+                  ? '${value["last_name"]}'
+                  : '${value["account"]["last_name"]}',
+            )),
+        DataCell(onTap: () {
+          _detailView(value);
+        },
+            Text(
+              root ? '${value["username"]}' : '${value["account"]["username"]}',
+            )),
+        DataCell(onTap: () {
+          _detailView(value);
+        },
+            Text(
+              root ? '${value["birthday"]}' : '${value["account"]["birthday"]}',
+            )),
         DataCell(
           GestureDetector(
             onTap: () {},
@@ -304,29 +313,17 @@ class _DataSource extends DataTableSource {
     );
   }
 
-  Widget _tapHandler(
-      {required Map<String, dynamic> data, required String text}) {
-    return SizedBox.expand(
-      child: InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return Dialog(
-                child: DetailedUserView(
-                  username:
-                      root ? data["username"] : data["account"]["username"],
-                  hs: hs,
-                ),
-              );
-            },
-          );
-        },
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(text, overflow: TextOverflow.ellipsis),
-        ),
-      ),
+  Future<dynamic> _detailView(Map<String, dynamic> data) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: DetailedUserView(
+            username: root ? data["username"] : data["account"]["username"],
+            hs: hs,
+          ),
+        );
+      },
     );
   }
 
@@ -383,11 +380,15 @@ class _DetailedUserViewState extends State<DetailedUserView> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: children,
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: children,
+            ),
           ),
         ),
       ),

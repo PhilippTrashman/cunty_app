@@ -1,6 +1,9 @@
+import 'package:cunty/src/imports.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
+
+import 'package:cunty/models/school_grade.dart';
 
 class HttpService {
   final String _baseUrl = dotenv.env['URL']!;
@@ -115,6 +118,36 @@ class HttpService {
 
   Future<List<Map<String, dynamic>>> fetchAdmins() async {
     return fetchObject('su');
+  }
+
+  Future<List<Map<String, dynamic>>> fetchGrades() async {
+    final response = await _dio.get('$_baseUrl/school_grade');
+    List<Map<String, dynamic>> data = [];
+    if (response.statusCode == 200) {
+      data = _responseToList(response);
+      return data;
+    } else {
+      throw Exception('Failed to load grades');
+    }
+  }
+
+  Future<SchoolGrade> fetchGrade(int id) async {
+    debugPrint('Fetching grade $id');
+    final response = await _dio.get('$_baseUrl/school_grade/$id');
+    if (response.statusCode == 200) {
+      return SchoolGrade.fromJson(json.decode(response.data));
+    } else {
+      throw Exception('Failed to load grade');
+    }
+  }
+
+  Future<SchoolClass> fetchClass(int id) async {
+    final response = await _dio.get('$_baseUrl/school_classes/$id');
+    if (response.statusCode == 200) {
+      return SchoolClass.fromJson(json.decode(response.data));
+    } else {
+      throw Exception('Failed to load class');
+    }
   }
 }
 

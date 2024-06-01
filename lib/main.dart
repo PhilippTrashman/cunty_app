@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cunty/src/imports.dart';
 import 'package:cunty/screens/landing.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -6,6 +8,15 @@ void setupLogging() {
   Logger.root.level =
       Level.ALL; // Set this level to control which log messages are shown
   Logger.root.onRecord.listen((record) {});
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
 }
 
 Future main() async {
@@ -33,12 +44,8 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        scrollBehavior: MyCustomScrollBehavior(),
         title: 'Cunty',
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: darkColorScheme,
