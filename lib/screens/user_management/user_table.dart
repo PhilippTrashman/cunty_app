@@ -1,3 +1,5 @@
+import 'package:cunty/models/school_grade.dart';
+import 'package:cunty/models/users.dart';
 import 'package:cunty/service/http_service.dart';
 import 'package:cunty/src/imports.dart';
 import 'package:flutter/material.dart';
@@ -348,7 +350,7 @@ class DetailedUserView extends StatefulWidget {
 }
 
 class _DetailedUserViewState extends State<DetailedUserView> {
-  Future<Map<String, dynamic>> fetchData() async {
+  Future<User> fetchData() async {
     return widget.hs.fetchUser(widget.username);
   }
 
@@ -359,7 +361,7 @@ class _DetailedUserViewState extends State<DetailedUserView> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
-              return columnView(snapshot.data ?? {});
+              return columnView(snapshot.data as User);
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             }
@@ -370,11 +372,16 @@ class _DetailedUserViewState extends State<DetailedUserView> {
         });
   }
 
-  Widget columnView(Map<String, dynamic> data) {
+  Widget columnView(User data) {
     List<Widget> children = [];
     children.add(_userInfo(data));
-    if (data.containsKey('student') && data['student'] != null) {
+    if (data.student != null) {
       children.add(_studentInfo(data));
+    }
+    if (data.teacher != null) {
+      for (var schoolClass in data.teacher!.schoolClasses!.values) {
+        children.add(_schoolClassInfo(schoolClass));
+      }
     }
     return SizedBox(
       child: Padding(
@@ -395,12 +402,12 @@ class _DetailedUserViewState extends State<DetailedUserView> {
     );
   }
 
-  Column _userInfo(Map<String, dynamic> data) {
+  Column _userInfo(User data) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('User', style: const TextStyle(fontSize: 20)),
-        SizedBox(height: 10),
+        const Text('User', style: TextStyle(fontSize: 20)),
+        const SizedBox(height: 10),
         DataTable(columns: const [
           DataColumn(label: Expanded(child: Text('ID'))),
           DataColumn(label: Expanded(child: Text('Name'))),
@@ -410,27 +417,27 @@ class _DetailedUserViewState extends State<DetailedUserView> {
           DataColumn(label: Expanded(child: Text('Email'))),
         ], rows: [
           DataRow(cells: [
-            DataCell(Text('${data["id"]}')),
-            DataCell(Text('${data["name"]}')),
-            DataCell(Text('${data["last_name"]}')),
-            DataCell(Text('${data["username"]}')),
-            DataCell(Text('${data["birthday"]}')),
-            DataCell(Text('${data["email"]}')),
+            DataCell(Text(data.id)),
+            DataCell(Text(data.name)),
+            DataCell(Text(data.lastName)),
+            DataCell(Text(data.username)),
+            DataCell(Text(data.birthday)),
+            DataCell(Text(data.email)),
           ]),
         ]),
       ],
     );
   }
 
-  DataRow _parentRow(Map<String, dynamic> data) {
-    data = data['parent'];
-    final account = data['account'];
-    String name = account['name'];
-    String lastName = account['last_name'];
-    String username = account['username'];
-    String birthday = account['birthday'];
+  DataRow _parentRow(ParenttoStudentLink link) {
+    final data = link.parent;
+    final account = data.account;
+    String name = account!.name;
+    String lastName = account.lastName;
+    String username = account.username;
+    String birthday = account.birthday;
     return DataRow(cells: [
-      DataCell(Text('${account["id"]}')),
+      DataCell(Text(account.id)),
       DataCell(Text(name)),
       DataCell(Text(lastName)),
       DataCell(Text(username)),
@@ -438,18 +445,18 @@ class _DetailedUserViewState extends State<DetailedUserView> {
     ]);
   }
 
-  Column _studentInfo(Map<String, dynamic> data) {
-    data = data['student']!;
+  Column _studentInfo(User student) {
+    final data = student.student!;
     List<DataRow> parentRows = [];
-    for (var parent in data['parents'].values) {
+    for (var parent in data.parents.values) {
       parentRows.add(_parentRow(parent));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Divider(),
-        Text('Parents', style: const TextStyle(fontSize: 20)),
-        SizedBox(height: 10),
+        const Divider(),
+        const Text('Parents', style: TextStyle(fontSize: 20)),
+        const SizedBox(height: 10),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(columns: const [
@@ -460,23 +467,24 @@ class _DetailedUserViewState extends State<DetailedUserView> {
             DataColumn(label: Expanded(child: Text('Birthday'))),
           ], rows: parentRows),
         ),
-        SizedBox(height: 10),
-        _schoolClassInfo(data['school_class']),
+        const SizedBox(height: 10),
+        _schoolClassInfo(data.schoolClass),
       ],
     );
   }
 
-  Widget _schoolClassInfo(Map<String, dynamic> data) {
-    String name = data['name'];
-    String grade = data['grade_id'].toString();
-    String teacher = data['head_teacher_name'];
-    String teacher_abbr = data['head_teacher_abbreviation'];
+  Widget _schoolClassInfo(SchoolClassSmall data) {
+    String name = data.name;
+    String grade = data.grade_id.toString();
+    String teacher = data.head_teacher_name;
+    String teacherAbbr = data.head_teacher_abbreviation;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Divider(),
-        Text('School Class', style: const TextStyle(fontSize: 20)),
-        SizedBox(height: 10),
+        const Divider(),
+        Text('Class ${data.grade}${data.name}',
+            style: const TextStyle(fontSize: 20)),
+        const SizedBox(height: 10),
         DataTable(columns: const [
           DataColumn(label: Expanded(child: Text('Name'))),
           DataColumn(label: Expanded(child: Text('Grade'))),
@@ -487,7 +495,7 @@ class _DetailedUserViewState extends State<DetailedUserView> {
             DataCell(Text(name)),
             DataCell(Text(grade)),
             DataCell(Text(teacher)),
-            DataCell(Text(teacher_abbr)),
+            DataCell(Text(teacherAbbr)),
           ]),
         ]),
       ],

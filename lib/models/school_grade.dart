@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class SchoolGrade {
   final int id;
   final int year;
@@ -54,14 +52,20 @@ class SchoolClassSmall {
   final int id;
   final String name;
   final int grade_id;
+  final int grade_year;
   final int head_teacher_id;
   final String head_teacher_name;
   final String head_teacher_abbreviation;
+
+  int get grade {
+    return DateTime.now().year - grade_year;
+  }
 
   SchoolClassSmall({
     required this.id,
     required this.name,
     required this.grade_id,
+    required this.grade_year,
     required this.head_teacher_id,
     required this.head_teacher_name,
     required this.head_teacher_abbreviation,
@@ -72,6 +76,7 @@ class SchoolClassSmall {
       id: json['id'],
       name: json['name'],
       grade_id: json['grade_id'],
+      grade_year: json['grade_year'],
       head_teacher_id: json['head_teacher_id'],
       head_teacher_name: json['head_teacher_name'],
       head_teacher_abbreviation: json['head_teacher_abbreviation'],
@@ -83,6 +88,7 @@ class SchoolClassSmall {
       'id': id,
       'name': name,
       'grade_id': grade_id,
+      'grade_year': grade_year,
       'head_teacher_id': head_teacher_id,
       'head_teacher_name': head_teacher_name,
       'head_teacher_abbreviation': head_teacher_abbreviation,
@@ -94,16 +100,22 @@ class SchoolClass {
   final int id;
   final String name;
   final int grade_id;
+  final int grade_year;
   final int head_teacher_id;
   final String head_teacher_name;
   final String head_teacher_abbreviation;
   final SchoolClassHeadTeacher head_teacher;
   final Map<int, SchoolClassStudent> students;
 
+  int get grade {
+    return DateTime.now().year - grade_year;
+  }
+
   SchoolClass({
     required this.id,
     required this.name,
     required this.grade_id,
+    required this.grade_year,
     required this.head_teacher_id,
     required this.head_teacher_name,
     required this.head_teacher_abbreviation,
@@ -116,6 +128,7 @@ class SchoolClass {
       id: json['id'],
       name: json['name'],
       grade_id: json['grade_id'],
+      grade_year: json['grade_year'],
       head_teacher_id: json['head_teacher_id'],
       head_teacher_name: json['head_teacher_name'],
       head_teacher_abbreviation: json['head_teacher_abbreviation'],
@@ -132,6 +145,7 @@ class SchoolClass {
       'id': id,
       'name': name,
       'grade_id': grade_id,
+      'grade_year': grade_year,
       'head_teacher_id': head_teacher_id,
       'head_teacher_name': head_teacher_name,
       'head_teacher_abbreviation': head_teacher_abbreviation,

@@ -1,3 +1,4 @@
+import 'package:cunty/models/users.dart';
 import 'package:cunty/src/imports.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -61,10 +62,10 @@ class HttpService {
     return fetchObject('users');
   }
 
-  Future<Map<String, dynamic>> fetchUser(String username) async {
+  Future<User> fetchUser(String username) async {
     final response = await _dio.get('$_baseUrl/users/$username');
     if (response.statusCode == 200) {
-      return json.decode(response.data);
+      return User.fromJson(json.decode(response.data));
     } else {
       throw Exception('Failed to load user');
     }
@@ -76,8 +77,8 @@ class HttpService {
     'testTeacher1',
     'testTeacher2',
     'testParent1',
-    'testParent2'
-        'testSU',
+    'testParent2',
+    'testSU',
   ];
 
   Future<Response> deleteUser(String username) async {
