@@ -80,6 +80,18 @@ class HttpService {
     'testSU',
   ];
 
+  Future<Response> addUser(NewUser user) async {
+    if (testAccountList.contains(user.username)) {
+      throw TestAccountException();
+    }
+    final response = await _dio.post('$_baseUrl/users', data: user.toJson());
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return response;
+    } else {
+      throw Exception('Failed to add user');
+    }
+  }
+
   Future<Response> deleteUser(String username) async {
     if (testAccountList.contains(username)) {
       throw TestAccountException();

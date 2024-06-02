@@ -191,6 +191,23 @@ class _UserTableState extends State<UserTable> {
               Text(widget.title, style: const TextStyle(fontSize: 24)),
               const Spacer(),
               IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        child: AddUserView(
+                          hs: widget.hs,
+                          type: widget.type,
+                          update: widget.update,
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+              IconButton(
                 icon: const Icon(Icons.refresh),
                 onPressed: () {
                   setState(() {});
@@ -462,7 +479,7 @@ class _EditUserViewState extends State<EditUserView> {
                     );
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Failed to update user'),
                       ),
                     );
@@ -715,5 +732,117 @@ class _DetailedUserViewState extends State<DetailedUserView> {
       DataCell(Text(username)),
       DataCell(Text(birthday)),
     ]);
+  }
+}
+
+class AddUserView extends StatefulWidget {
+  final HttpService hs;
+  final UserTableType type;
+  final Function update;
+
+  const AddUserView(
+      {super.key, required this.hs, required this.type, required this.update});
+
+  @override
+  State<AddUserView> createState() => _AddUserViewState();
+}
+
+class _AddUserViewState extends State<AddUserView> {
+  final nameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final usernameController = TextEditingController();
+  final birthdayController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Add User', style: TextStyle(fontSize: 20)),
+          const SizedBox(height: 10),
+          TextField(
+            controller: nameController,
+            decoration: const InputDecoration(labelText: 'Name'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: lastNameController,
+            decoration: const InputDecoration(labelText: 'Last Name'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: usernameController,
+            decoration: const InputDecoration(labelText: 'Username'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: birthdayController,
+            decoration: const InputDecoration(labelText: 'Birthday'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: emailController,
+            decoration: const InputDecoration(labelText: 'Email'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: passwordController,
+            decoration: const InputDecoration(labelText: 'Password'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: confirmPasswordController,
+            decoration: const InputDecoration(labelText: 'Confirm Password'),
+          ),
+          ButtonBar(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final newUser = NewUser(
+                    name: nameController.text,
+                    lastName: lastNameController.text,
+                    username: usernameController.text,
+                    birthday: birthdayController.text,
+                    email: emailController.text,
+                    password: passwordController.text,
+                  );
+                  try {
+                    if (passwordController.text !=
+                        confirmPasswordController.text) {
+                      throw Exception('Passwords do not match');
+                    }
+                    widget.hs.addUser(newUser);
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Added user ${newUser.username}'),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Failed to add user'),
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }

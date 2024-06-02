@@ -37,10 +37,18 @@ class _MainPageState extends State<MainPage> {
         page = _homePage();
         break;
       case 1:
-        page = const UserManagement();
+        if (appState.user!.su != null && appState.user!.su!.manageUsers) {
+          page = const UserManagement();
+        } else {
+          page = const Placeholder(text: 'Access denied');
+        }
         break;
       case 2:
-        page = const ClassManagement();
+        if (appState.user!.su != null && appState.user!.su!.manageSchool) {
+          page = const ClassManagement();
+        } else {
+          page = const Placeholder(text: 'Access denied');
+        }
       case 3:
         page = const Placeholder(text: 'Settings');
         break;
@@ -284,6 +292,7 @@ class _MainPageState extends State<MainPage> {
           actions: [
             IconButton(
               onPressed: () async {
+                selectedPage = 0;
                 appState.logout();
               },
               icon: const Icon(Icons.developer_mode),

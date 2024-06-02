@@ -1,5 +1,6 @@
 import 'package:cunty/src/imports.dart';
 import 'package:cunty/service/http_service.dart';
+import 'package:cunty/models/users.dart';
 
 class AppState extends ChangeNotifier {
   static final log = Logger('APP_MODEL');
@@ -8,7 +9,9 @@ class AppState extends ChangeNotifier {
   late double windowHeight;
   bool devMode = false;
 
-  static String? _userId;
+  static User? _user;
+
+  User? get user => _user;
 
   final HttpService _httpService = HttpService();
 
@@ -20,19 +23,14 @@ class AppState extends ChangeNotifier {
   }
 
   bool loggedIn() {
-    return _userId == null;
-  }
-
-  set userId(String? value) {
-    _userId = value;
-    notifyListeners();
+    return _user != null;
   }
 
   Future<void> login(String email, String password) async {
     try {
       await _httpService.login(email, password).then((response) {
         Map<String, dynamic> data = json.decode(response.data);
-        userId = data['id'];
+        _user = User.fromJson(data);
         notifyListeners();
       });
     } catch (e) {
@@ -41,7 +39,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    userId = null;
+    _user = null;
     notifyListeners();
   }
 

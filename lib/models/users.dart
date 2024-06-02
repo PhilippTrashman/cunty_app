@@ -36,6 +36,35 @@ class UserSmall {
   }
 }
 
+class NewUser {
+  final String name;
+  final String lastName;
+  final String username;
+  final String birthday;
+  final String email;
+  final String password;
+
+  NewUser({
+    required this.name,
+    required this.lastName,
+    required this.username,
+    required this.birthday,
+    required this.email,
+    required this.password,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'last_name': lastName,
+      'username': username,
+      'birthday': birthday,
+      'email': email,
+      'password': password,
+    };
+  }
+}
+
 class User {
   final String id;
   final String name;
