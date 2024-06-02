@@ -34,7 +34,7 @@ class _MainPageState extends State<MainPage> {
     Widget page;
     switch (selectedPage) {
       case 0:
-        page = const Placeholder(text: 'Welcome');
+        page = _homePage();
         break;
       case 1:
         page = const UserManagement();
@@ -291,6 +291,57 @@ class _MainPageState extends State<MainPage> {
           ],
         ),
         body: appState.loggedIn() ? loggedIn() : loggedOut());
+  }
+
+  Column _homePage() {
+    return Column(
+      children: [
+        const Placeholder(text: 'Home'),
+        const SizedBox(height: 8),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: SizedBox.expand(
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)))),
+                      onPressed: () {
+                        setState(() {
+                          selectedPage = 1;
+                        });
+                      },
+                      child: const Text('Users'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SizedBox.expand(
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                          shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)))),
+                      onPressed: () {
+                        setState(() {
+                          selectedPage = 2;
+                        });
+                      },
+                      child: const Text('Classes'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

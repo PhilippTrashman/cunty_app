@@ -2,7 +2,6 @@ import 'package:cunty/models/users.dart';
 import 'package:cunty/src/imports.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:convert';
 
 import 'package:cunty/models/school_grade.dart';
 
@@ -93,6 +92,16 @@ class HttpService {
     }
   }
 
+  Future<Response> updateUser(User user, String username) async {
+    final response =
+        await _dio.put('$_baseUrl/users/$username', data: user.toUpdateJson());
+    if (response.statusCode == 200) {
+      return response;
+    } else {
+      throw Exception('Failed to update user');
+    }
+  }
+
   Future<Response> deleteUserRoll(String roll, String username) async {
     if (!['su', 'student', 'teacher', 'parent'].contains(roll)) {
       throw Exception('Invalid roll');
@@ -121,11 +130,14 @@ class HttpService {
     return fetchObject('su');
   }
 
-  Future<List<Map<String, dynamic>>> fetchGrades() async {
+  Future<List<SchoolGradeSmall>> fetchGrades() async {
     final response = await _dio.get('$_baseUrl/school_grade');
-    List<Map<String, dynamic>> data = [];
+    List<SchoolGradeSmall> data = [];
     if (response.statusCode == 200) {
-      data = _responseToList(response);
+      data = (json.decode(response.data) as List)
+          .map((item) => SchoolGradeSmall.fromJson(item))
+          .toList();
+      data.sort((a, b) => a.grade.compareTo(b.grade));
       return data;
     } else {
       throw Exception('Failed to load grades');

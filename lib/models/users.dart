@@ -78,6 +78,16 @@ class User {
     );
   }
 
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'name': name,
+      'last_name': lastName,
+      'username': username,
+      'birthday': birthday,
+      'email': email,
+    };
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -209,21 +219,59 @@ class ParenttoStudentLink {
   }
 }
 
+class StudenttoParentLink {
+  final int id;
+  final StudentforParent student;
+
+  StudenttoParentLink({
+    required this.id,
+    required this.student,
+  });
+
+  factory StudenttoParentLink.fromJson(Map<String, dynamic> json) {
+    return StudenttoParentLink(
+      id: json['id'],
+      student: StudentforParent.fromJson(json['student']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'student': student.toJson(),
+    };
+  }
+}
+
 class Parent {
   final int id;
   final UserSmall? account;
+  final Map<int, StudenttoParentLink> children;
 
   Parent({
     required this.id,
     required this.account,
+    required this.children,
   });
 
   factory Parent.fromJson(Map<String, dynamic> json) {
     final account =
         json['account'] != null ? UserSmall.fromJson(json['account']) : null;
+    Map<int, StudenttoParentLink> children = {};
+    if (json['children'] == null) {
+      return Parent(
+        id: json['id'],
+        account: account,
+        children: children,
+      );
+    }
+    json['children'].forEach((key, value) {
+      children[int.parse(key)] = StudenttoParentLink.fromJson(value);
+    });
     return Parent(
       id: json['id'],
       account: account,
+      children: children,
     );
   }
 
@@ -231,6 +279,35 @@ class Parent {
     return {
       'id': id,
       'account': account?.toJson(),
+      'children': children,
+    };
+  }
+}
+
+class StudentforParent {
+  final int id;
+  final int schoolClassId;
+  final UserSmall account;
+
+  StudentforParent({
+    required this.id,
+    required this.schoolClassId,
+    required this.account,
+  });
+
+  factory StudentforParent.fromJson(Map<String, dynamic> json) {
+    return StudentforParent(
+      id: json['id'],
+      schoolClassId: json['school_class_id'],
+      account: UserSmall.fromJson(json['account']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'school_class_id': schoolClassId,
+      'account': account.toJson(),
     };
   }
 }
@@ -252,6 +329,14 @@ class Student {
 
   factory Student.fromJson(Map<String, dynamic> json) {
     Map<int, ParenttoStudentLink> parents = {};
+    if (json['parents'] == null) {
+      return Student(
+        id: json['id'],
+        schoolClassId: json['school_class_id'],
+        schoolClass: SchoolClassSmall.fromJson(json['school_class']),
+        parents: parents,
+      );
+    }
     json['parents'].forEach((key, value) {
       parents[int.parse(key)] = ParenttoStudentLink.fromJson(value);
     });

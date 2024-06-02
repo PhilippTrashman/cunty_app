@@ -295,7 +295,21 @@ class _DataSource extends DataTableSource {
               children: [
                 IconButton(
                   icon: const Icon(Icons.edit),
-                  onPressed: () {},
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          child: EditUserView(
+                            username: root
+                                ? value["username"]
+                                : value["account"]["username"],
+                            hs: hs,
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete),
@@ -339,6 +353,131 @@ class _DataSource extends DataTableSource {
   int get selectedRowCount => _selectedCount;
 }
 
+class EditUserView extends StatefulWidget {
+  final String username;
+  final HttpService hs;
+
+  const EditUserView({super.key, required this.username, required this.hs});
+
+  @override
+  State<EditUserView> createState() => _EditUserViewState();
+}
+
+class _EditUserViewState extends State<EditUserView> {
+  final nameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final usernameController = TextEditingController();
+  final birthdayController = TextEditingController();
+  final emailController = TextEditingController();
+  Future<User> fetchData() async {
+    final user = await widget.hs.fetchUser(widget.username);
+    nameController.text = user.name;
+    lastNameController.text = user.lastName;
+    usernameController.text = user.username;
+    birthdayController.text = user.birthday;
+    emailController.text = user.email;
+    return user;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: fetchData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              return columnView(snapshot.data as User);
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+          }
+          return const SizedBox(
+              width: double.maxFinite,
+              child: Center(child: CircularProgressIndicator()));
+        });
+  }
+
+  Widget columnView(User user) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Edit User', style: TextStyle(fontSize: 20)),
+          const SizedBox(height: 10),
+          TextField(
+            controller: nameController,
+            decoration: const InputDecoration(labelText: 'Name'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: lastNameController,
+            decoration: const InputDecoration(labelText: 'Last Name'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: usernameController,
+            decoration: const InputDecoration(labelText: 'Username'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: birthdayController,
+            decoration: const InputDecoration(labelText: 'Birthday'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: emailController,
+            decoration: const InputDecoration(labelText: 'Email'),
+          ),
+          const SizedBox(height: 10),
+          ButtonBar(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final updatedUser = User(
+                    id: user.id,
+                    name: nameController.text,
+                    lastName: lastNameController.text,
+                    username: usernameController.text,
+                    birthday: birthdayController.text,
+                    email: emailController.text,
+                    student: user.student,
+                    teacher: user.teacher,
+                    parent: user.parent,
+                    su: user.su,
+                  );
+                  try {
+                    widget.hs.updateUser(updatedUser, user.username);
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Updated user ${updatedUser.username}'),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to update user'),
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
 class DetailedUserView extends StatefulWidget {
   final String username;
   final HttpService hs;
@@ -376,12 +515,23 @@ class _DetailedUserViewState extends State<DetailedUserView> {
     List<Widget> children = [];
     children.add(_userInfo(data));
     if (data.student != null) {
+      children.add(const Divider());
       children.add(_studentInfo(data));
     }
-    if (data.teacher != null) {
+    if (data.teacher != null && data.teacher!.schoolClasses != null) {
+      children.add(const Divider());
       for (var schoolClass in data.teacher!.schoolClasses!.values) {
         children.add(_schoolClassInfo(schoolClass));
       }
+    }
+    if (data.parent != null && data.parent!.children.isNotEmpty) {
+      children.add(const Divider());
+      children.add(_parentInfo(data.parent!));
+    }
+
+    if (data.su != null) {
+      children.add(const Divider());
+      children.add(_adminInfo(data.su!));
     }
     return SizedBox(
       child: Padding(
@@ -475,9 +625,9 @@ class _DetailedUserViewState extends State<DetailedUserView> {
 
   Widget _schoolClassInfo(SchoolClassSmall data) {
     String name = data.name;
-    String grade = data.grade_id.toString();
-    String teacher = data.head_teacher_name;
-    String teacherAbbr = data.head_teacher_abbreviation;
+    String grade = data.gradeId.toString();
+    String teacher = data.headTeacherName;
+    String teacherAbbr = data.headTeacherAbbreviation;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -500,5 +650,70 @@ class _DetailedUserViewState extends State<DetailedUserView> {
         ]),
       ],
     );
+  }
+
+  Widget _adminInfo(SU data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        const Text('Super User', style: TextStyle(fontSize: 20)),
+        const SizedBox(height: 10),
+        DataTable(columns: const [
+          DataColumn(label: Expanded(child: Text('ID'))),
+          DataColumn(label: Expanded(child: Text('Admin Rights'))),
+          DataColumn(label: Expanded(child: Text('Change Subject Status'))),
+          DataColumn(label: Expanded(child: Text('Manage School'))),
+          DataColumn(label: Expanded(child: Text('Manage Users'))),
+        ], rows: [
+          DataRow(cells: [
+            DataCell(Text(data.id.toString())),
+            DataCell(Text(data.adminRights.toString())),
+            DataCell(Text(data.changeSubjectStatus.toString())),
+            DataCell(Text(data.manageSchool.toString())),
+            DataCell(Text(data.manageUsers.toString())),
+          ]),
+        ]),
+      ],
+    );
+  }
+
+  Widget _parentInfo(Parent data) {
+    final children = data.children;
+    List<DataRow> childRows = [];
+    for (var child in children.values) {
+      childRows.add(_childRow(child));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        const Text('Children', style: TextStyle(fontSize: 20)),
+        const SizedBox(height: 10),
+        DataTable(columns: const [
+          DataColumn(label: Expanded(child: Text('ID'))),
+          DataColumn(label: Expanded(child: Text('Name'))),
+          DataColumn(label: Expanded(child: Text('Last Name'))),
+          DataColumn(label: Expanded(child: Text('Username'))),
+          DataColumn(label: Expanded(child: Text('Birthday'))),
+        ], rows: childRows),
+      ],
+    );
+  }
+
+  DataRow _childRow(StudenttoParentLink link) {
+    final data = link.student;
+    final account = data.account;
+    String name = account.name;
+    String lastName = account.lastName;
+    String username = account.username;
+    String birthday = account.birthday;
+    return DataRow(cells: [
+      DataCell(Text(account.id)),
+      DataCell(Text(name)),
+      DataCell(Text(lastName)),
+      DataCell(Text(username)),
+      DataCell(Text(birthday)),
+    ]);
   }
 }
